@@ -4,3 +4,8 @@ bun.lock
 *.DS_Store
 .env
 .env.local
+
+# Oracle brain - active workspace (regenerated)
+ψ/active/
+# Oracle logs (regenerated)
+ψ/memory/logs/

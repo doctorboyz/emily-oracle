@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { readManifest } from "../installer.js";
-import { AGENT_TARGETS } from "./agents.js";
+import { getAllTargets } from "./agents.js";
 import { existsSync } from "fs";
 import { join } from "path";
 
@@ -9,7 +9,8 @@ export const xrayCommand = new Command("xray")
   .action(() => {
     console.log(`\n🔍 emily-skill-cli xray\n`);
 
-    for (const [name, agent] of Object.entries(AGENT_TARGETS)) {
+    const allTargets = getAllTargets();
+    for (const [name, agent] of Object.entries(allTargets)) {
       const manifest = readManifest(agent);
       const skillsDir = agent.globalSkillsDir;
       const agentsDir = agent.agentsDir;

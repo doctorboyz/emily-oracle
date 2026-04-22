@@ -1,9 +1,9 @@
 // Agent target definitions — where skills/agents get installed for each platform
-// Modeled after arra-oracle-skills-cli but simplified for initial release
+// Built-in platforms are hardcoded; custom platforms loaded from ~/.config/emily-skill-cli/agents.json
 
 import { homedir } from "os";
 import { join } from "path";
-import { existsSync } from "fs";
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 
 export interface AgentTarget {
   name: string;
@@ -16,10 +16,27 @@ export interface AgentTarget {
   useFlatFiles: boolean;   // flat .md files vs directory structure
   commandFormat: "md" | "toml"; // command stub format
   commandsOptIn: boolean;   // require --with-commands flag
+  detectPath: string;       // path to check for installation (serializable)
   detectInstalled: () => boolean;
 }
 
+export interface CustomAgentConfig {
+  name: string;
+  displayName: string;
+  skillsDir: string;
+  globalSkillsDir: string;
+  agentsDir: string;
+  commandsDir?: string;
+  globalCommandsDir?: string;
+  useFlatFiles?: boolean;
+  commandFormat?: "md" | "toml";
+  commandsOptIn?: boolean;
+  detectPath: string;
+}
+
 const home = homedir();
+const CONFIG_DIR = join(home, ".config", "emily-skill-cli");
+const AGENTS_CONFIG_FILE = join(CONFIG_DIR, "agents.json");
 
 export const AGENT_TARGETS: Record<string, AgentTarget> = {
   "claude-code": {
@@ -33,7 +50,8 @@ export const AGENT_TARGETS: Record<string, AgentTarget> = {
     useFlatFiles: false,
     commandFormat: "md",
     commandsOptIn: true,
-    detectInstalled: () => existsSync(join(home, ".claude", "skills")),
+    detectPath: join(home, ".claude", "skills"),
+    get detectInstalled() { return () => existsSync(this.detectPath); },
   },
   opencode: {
     name: "opencode",
@@ -44,7 +62,8 @@ export const AGENT_TARGETS: Record<string, AgentTarget> = {
     commandFormat: "md",
     useFlatFiles: false,
     commandsOptIn: false,
-    detectInstalled: () => existsSync(join(home, ".config", "opencode")),
+    detectPath: join(home, ".config", "opencode"),
+    get detectInstalled() { return () => existsSync(this.detectPath); },
   },
   codex: {
     name: "codex",
@@ -57,7 +76,8 @@ export const AGENT_TARGETS: Record<string, AgentTarget> = {
     useFlatFiles: true,
     commandFormat: "md",
     commandsOptIn: false,
-    detectInstalled: () => existsSync(join(home, ".codex")),
+    detectPath: join(home, ".codex"),
+    get detectInstalled() { return () => existsSync(this.detectPath); },
   },
   cursor: {
     name: "cursor",
@@ -68,28 +88,85 @@ export const AGENT_TARGETS: Record<string, AgentTarget> = {
     useFlatFiles: true,
     commandFormat: "md",
     commandsOptIn: false,
-    detectInstalled: () => existsSync(join(home, ".cursor")),
+    detectPath: join(home, ".cursor"),
+    get detectInstalled() { return () => existsSync(this.detectPath); },
   },
 };
 
 export const DEFAULT_AGENTS = ["claude-code"];
 
+function loadCustomAgents(): Record<string, CustomAgentConfig> {
+  if (!existsSync(AGENTS_CONFIG_FILE)) return {};
+  try {
+    return JSON.parse(readFileSync(AGENTS_CONFIG_FILE, "utf-8"));
+  } catch {
+    return {};
+  }
+}
+
+function toAgentTarget(config: CustomAgentConfig): AgentTarget {
+  return {
+    name: config.name,
+    displayName: config.displayName,
+    skillsDir: config.skillsDir,
+    globalSkillsDir: config.globalSkillsDir,
+    agentsDir: config.agentsDir,
+    commandsDir: config.commandsDir,
+    globalCommandsDir: config.globalCommandsDir,
+    useFlatFiles: config.useFlatFiles ?? false,
+    commandFormat: config.commandFormat ?? "md",
+    commandsOptIn: config.commandsOptIn ?? false,
+    detectPath: config.detectPath,
+    get detectInstalled() { return () => existsSync(this.detectPath); },
+  };
+}
+
+function mergeCustomAgents(): Record<string, AgentTarget> {
+  const merged: Record<string, AgentTarget> = { ...AGENT_TARGETS };
+  const custom = loadCustomAgents();
+  for (const [name, config] of Object.entries(custom)) {
+    merged[name] = toAgentTarget(config);
+  }
+  return merged;
+}
+
+export function getAllTargets(): Record<string, AgentTarget> {
+  return mergeCustomAgents();
+}
+
 export function resolveAgent(name: string): AgentTarget {
-  const agent = AGENT_TARGETS[name];
+  const all = getAllTargets();
+  const agent = all[name];
   if (!agent) {
     throw new Error(
-      `Unknown agent: ${name}. Available: ${Object.keys(AGENT_TARGETS).join(", ")}`
+      `Unknown agent: ${name}. Available: ${Object.keys(all).join(", ")}`
     );
   }
   return agent;
 }
 
 export function listAgents(): string[] {
-  return Object.keys(AGENT_TARGETS);
+  return Object.keys(getAllTargets());
 }
 
 export function detectInstalledAgents(): string[] {
-  return Object.entries(AGENT_TARGETS)
+  return Object.entries(getAllTargets())
     .filter(([_, agent]) => agent.detectInstalled())
     .map(([name]) => name);
+}
+
+export function saveCustomAgent(config: CustomAgentConfig): void {
+  const custom = loadCustomAgents();
+  custom[config.name] = config;
+  mkdirSync(CONFIG_DIR, { recursive: true });
+  writeFileSync(AGENTS_CONFIG_FILE, JSON.stringify(custom, null, 2), "utf-8");
+}
+
+export function removeCustomAgent(name: string): boolean {
+  const custom = loadCustomAgents();
+  if (!custom[name]) return false;
+  delete custom[name];
+  mkdirSync(CONFIG_DIR, { recursive: true });
+  writeFileSync(AGENTS_CONFIG_FILE, JSON.stringify(custom, null, 2), "utf-8");
+  return true;
 }

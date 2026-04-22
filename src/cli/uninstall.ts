@@ -22,6 +22,9 @@ export const uninstallCommand = new Command("uninstall")
     });
 
     console.log(`\n  📊 ${result.skillsRemoved} skills, ${result.agentsRemoved} agents removed`);
+    if (result.skillsRemoved + result.agentsRemoved > 0) {
+      console.log(`  📦 Archived to ~/.claude/archive/ (Principle 1: Nothing is Deleted)`);
+    }
     if (result.errors.length > 0) {
       console.log(`  ⚠ ${result.errors.length} errors`);
       result.errors.forEach((e) => console.log(`    - ${e}`));

@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { readManifest } from "../installer.js";
+import { readManifest, readHistory } from "../installer.js";
 import { listAvailableSkills, listAvailableAgents } from "../installer.js";
 import { AGENT_TARGETS, DEFAULT_AGENTS } from "./agents.js";
 
@@ -7,11 +7,30 @@ export const listCommand = new Command("list")
   .description("List installed skills and agents")
   .option("-a, --agent <agent>", "target agent platform", "claude-code")
   .option("--available", "list available (not yet installed) skills", false)
+  .option("--history", "show installation history", false)
   .option("--json", "JSON output", false)
   .action((opts) => {
     const agent = AGENT_TARGETS[opts.agent];
     if (!agent) {
       console.error(`Unknown agent: ${opts.agent}`);
+      return;
+    }
+
+    if (opts.history) {
+      const history = readHistory(agent);
+      if (history.length === 0) {
+        console.log(`\n  No history found for ${opts.agent}\n`);
+        return;
+      }
+      console.log(`\n📜 History (${history.length} entries) — ${opts.agent}:\n`);
+      history.slice(-20).forEach((entry) => {
+        const details = entry.details ? ` (${entry.details})` : "";
+        console.log(`  ${entry.timestamp}  ${entry.action} ${entry.type}: ${entry.name}${details}`);
+      });
+      if (history.length > 20) {
+        console.log(`\n  ... and ${history.length - 20} older entries`);
+      }
+      console.log();
       return;
     }
 

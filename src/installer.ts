@@ -1,7 +1,7 @@
 // Core install/uninstall logic for emily-skill-cli
 // Copies skills and agents to target directories, tracks installed state
 
-import { cpSync, mkdirSync, rmSync, existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "fs";
+import { cpSync, mkdirSync, rmSync, existsSync, readFileSync, writeFileSync, appendFileSync, readdirSync, statSync } from "fs";
 import { join, basename, resolve } from "path";
 import { homedir } from "os";
 import { VERSION, NAME } from "./version.js";
@@ -10,15 +10,26 @@ import { resolveAgent, type AgentTarget } from "./cli/agents.js";
 
 const home = homedir();
 
+interface ManifestEntry {
+  action: "install" | "uninstall" | "archive";
+  type: "skill" | "agent" | "manifest";
+  name: string;
+  timestamp: string;
+  details?: string;
+}
+
 interface InstallManifest {
   version: string;
   installedAt: string;
   skills: string[];
   agents: string[];
   profile?: string;
+  updatedAt?: string;
+  history?: ManifestEntry[];
 }
 
 const MANIFEST_FILE = ".emily-skill-cli.json";
+const HISTORY_FILE = ".emily-skill-cli-history.jsonl";
 
 function getManifestPath(agent: AgentTarget): string {
   return join(agent.globalSkillsDir, MANIFEST_FILE);
@@ -37,7 +48,28 @@ export function readManifest(agent: AgentTarget): InstallManifest | null {
 export function writeManifest(agent: AgentTarget, manifest: InstallManifest): void {
   const path = getManifestPath(agent);
   mkdirSync(agent.globalSkillsDir, { recursive: true });
+  manifest.updatedAt = new Date().toISOString();
+  const history = readHistory(agent);
+  manifest.history = history.slice(-50);
   writeFileSync(path, JSON.stringify(manifest, null, 2), "utf-8");
+}
+
+export function appendHistory(agent: AgentTarget, entry: ManifestEntry): void {
+  const historyPath = join(agent.globalSkillsDir, HISTORY_FILE);
+  mkdirSync(agent.globalSkillsDir, { recursive: true });
+  const line = JSON.stringify(entry) + "\n";
+  appendFileSync(historyPath, line, "utf-8");
+}
+
+export function readHistory(agent: AgentTarget): ManifestEntry[] {
+  const historyPath = join(agent.globalSkillsDir, HISTORY_FILE);
+  if (!existsSync(historyPath)) return [];
+  try {
+    const lines = readFileSync(historyPath, "utf-8").trim().split("\n").filter(Boolean);
+    return lines.map((line) => JSON.parse(line));
+  } catch {
+    return [];
+  }
 }
 
 // Resolve skill source directory
@@ -85,14 +117,23 @@ export async function installSkill(
     return { installed: false, reason: "already installed" };
   }
 
-  // Remove old if force
+  // Remove old if force — archive first (Principle 1)
   if (existsSync(targetDir)) {
+    archiveItem(targetDir, agent, "skill", skillName);
     rmSync(targetDir, { recursive: true, force: true });
   }
 
   // Copy skill directory
   mkdirSync(agent.globalSkillsDir, { recursive: true });
   cpSync(sourceDir, targetDir, { recursive: true });
+
+  // Record history
+  appendHistory(agent, {
+    action: "install",
+    type: "skill",
+    name: skillName,
+    timestamp: new Date().toISOString(),
+  });
 
   // Inject installer metadata into SKILL.md
   const skillMdPath = join(targetDir, "SKILL.md");
@@ -131,33 +172,72 @@ export async function installAgent(
   mkdirSync(target.agentsDir, { recursive: true });
   cpSync(sourcePath, targetPath);
 
+  // Record history
+  appendHistory(target, {
+    action: "install",
+    type: "agent",
+    name: agentFile,
+    timestamp: new Date().toISOString(),
+  });
+
   return { installed: true };
+}
+
+// Archive helpers (Principle 1: Nothing is Deleted)
+function getArchiveDir(agent: AgentTarget, type: "skill" | "agent"): string {
+  return join(agent.globalSkillsDir, "..", "archive", type === "skill" ? "skills" : "agents");
+}
+
+function archiveItem(sourcePath: string, agent: AgentTarget, type: "skill" | "agent", name: string): string | null {
+  if (!existsSync(sourcePath)) return null;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const archiveDir = getArchiveDir(agent, type);
+  const dest = join(archiveDir, `${name}-${timestamp}`);
+  mkdirSync(archiveDir, { recursive: true });
+  cpSync(sourcePath, dest, { recursive: true });
+  return dest;
 }
 
 // Uninstall a single skill
 export async function uninstallSkill(
   skillName: string,
   agent: AgentTarget
-): Promise<{ removed: boolean; reason?: string }> {
+): Promise<{ removed: boolean; reason?: string; archivedTo?: string }> {
   const targetDir = join(agent.globalSkillsDir, skillName);
   if (!existsSync(targetDir)) {
     return { removed: false, reason: "not installed" };
   }
+  const archivedTo = archiveItem(targetDir, agent, "skill", skillName);
   rmSync(targetDir, { recursive: true, force: true });
-  return { removed: true };
+  appendHistory(agent, {
+    action: "uninstall",
+    type: "skill",
+    name: skillName,
+    timestamp: new Date().toISOString(),
+    details: archivedTo || undefined,
+  });
+  return { removed: true, archivedTo: archivedTo || undefined };
 }
 
 // Uninstall a single agent
 export async function uninstallAgent(
   agentFile: string,
   target: AgentTarget
-): Promise<{ removed: boolean; reason?: string }> {
+): Promise<{ removed: boolean; reason?: string; archivedTo?: string }> {
   const targetPath = join(target.agentsDir, agentFile);
   if (!existsSync(targetPath)) {
     return { removed: false, reason: "not installed" };
   }
+  const archivedTo = archiveItem(targetPath, target, "agent", agentFile.replace(/\.md$/, ""));
   rmSync(targetPath, { force: true });
-  return { removed: true };
+  appendHistory(target, {
+    action: "uninstall",
+    type: "agent",
+    name: agentFile,
+    timestamp: new Date().toISOString(),
+    details: archivedTo || undefined,
+  });
+  return { removed: true, archivedTo: archivedTo || undefined };
 }
 
 // Full install: profile or specific skills
@@ -254,6 +334,13 @@ export async function installAll(options: {
         profile: options.profile,
       };
       writeManifest(agent, manifest);
+      appendHistory(agent, {
+        action: "install",
+        type: "manifest",
+        name: "full-install",
+        timestamp: new Date().toISOString(),
+        details: `profile: ${options.profile || "custom"}`,
+      });
     }
   }
 
@@ -281,7 +368,7 @@ export async function uninstallAll(options: {
       for (const skillName of skillsToRemove) {
         const result = await uninstallSkill(skillName, agent);
         if (result.removed) {
-          console.log(`  ✓ removed skill: ${skillName}`);
+          console.log(`  ✓ removed skill: ${skillName}${result.archivedTo ? ` (archived)` : ""}`);
           skillsRemoved++;
         }
       }
@@ -289,15 +376,27 @@ export async function uninstallAll(options: {
       for (const agentFile of agentsToRemove) {
         const result = await uninstallAgent(agentFile, agent);
         if (result.removed) {
-          console.log(`  ✓ removed agent: ${agentFile}`);
+          console.log(`  ✓ removed agent: ${agentFile}${result.archivedTo ? ` (archived)` : ""}`);
           agentsRemoved++;
         }
       }
 
-      // Remove manifest
-      const manifestPath = getManifestPath(agent);
-      if (existsSync(manifestPath)) {
-        rmSync(manifestPath, { force: true });
+      // Preserve manifest with empty state instead of deleting (Principle 1)
+      appendHistory(agent, {
+        action: "uninstall",
+        type: "manifest",
+        name: "uninstall-all",
+        timestamp: new Date().toISOString(),
+        details: `removed ${skillsToRemove.length} skills, ${agentsToRemove.length} agents`,
+      });
+      if (manifest) {
+        writeManifest(agent, {
+          version: VERSION,
+          installedAt: manifest.installedAt,
+          skills: [],
+          agents: [],
+          profile: manifest.profile,
+        });
       }
     } else if (options.skills) {
       // Remove specific skills

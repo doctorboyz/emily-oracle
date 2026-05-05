@@ -60,14 +60,19 @@
 
 ```
 ψ/
-├── inbox/        # Communication
-├── memory/       # Knowledge (resonance, learnings, retrospectives, logs)
-├── writing/      # Drafts
-├── lab/          # Experiments
-├── learn/        # Study materials
-├── active/       # Research workspace (ephemeral)
-├── archive/      # Completed work
-└── outbox/       # Outgoing communication
+├── memory/
+│   ├── identity/              ← ตัวตน (IMMUTABLE)
+│   ├── instinct/              ← ปรัชญา (IMMUTABLE)
+│   ├── inherit/               ← มรดก (IMMUTABLE)
+│   ├── learnings/             ← เรียนรู้ (from experience)
+│   ├── retrospectives/        ← ย้อนดู session (append-only)
+│   ├── knowledge/             ← ภูมิปัญญา (supersede only)
+│   ├── reference/             ← อ้างอิง (supersede only)
+│   ├── work/                  ← บันทึกกิจกรรม (append-only)
+│   ├── archive/               ← เก็บ (archived/completed)
+│   └── drafts/                ← ร่างเขียน (ephemeral)
+├── inbox/                     ← ข้อความเข้า (cross-Oracle)
+└── outbox/                    ← ข้อความออก (cross-Oracle)
 ```
 
 ## Short Codes

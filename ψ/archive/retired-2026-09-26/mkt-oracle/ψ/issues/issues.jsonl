@@ -1,0 +1,1 @@
+{"id": "ISSUE-001", "status": "open", "severity": "medium", "project": "mkt-oracle", "title": "Content plan 2-week pilot needs voice rewrite", "problem": "Content plan hooks, clip names, and captions still use old voice (พ่อ-ลูก). Need to rewrite with voice: หมอ-คุณพ่อคุณแม่.", "solution": "", "discovered": "2026-05-26", "fixed": "", "notes": "Found in retro 2026-05-26"}

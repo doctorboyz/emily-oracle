@@ -1,0 +1,35 @@
+# Environment & secrets
+.env
+.env.*
+*.secret
+credentials.json
+*.pem
+*.key
+id_rsa*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Build
+dist/
+build/
+.next/
+
+# Data & cache
+.synapse/
+*.sqlite
+*.db

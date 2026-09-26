@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  psi-reader agent — launchd template (macOS)
+  Copy to ~/Library/LaunchAgents/com.psi-reader.agent.plist and edit:
+    - REPO_PATH: where you cloned psi-reader
+    - ROOTS: comma-separated dirs to expose (read-only)
+    - TOKEN: shared secret (must match reader's sources.json)
+    - BIND: THIS machine's Tailscale IP only
+  Install + start:
+    cp com.psi-reader.agent.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.psi-reader.agent.plist
+    launchctl start com.psi-reader.agent
+  Logs: tail -f /tmp/psi-reader-agent.log
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.psi-reader.agent.plist
+    rm ~/Library/LaunchAgents/com.psi-reader.agent.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.psi-reader.agent</string>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/doctorboyz/Code/github.com/doctorboyz/psi-reader</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/npm</string>
+    <string>run</string>
+    <string>start</string>
+    <string>--workspace</string>
+    <string>agent</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ROOTS</key>
+    <string>/Users/doctorboyz/notes,/Users/doctorboyz/Code</string>
+    <key>TOKEN</key>
+    <string>CHANGE-ME-LONG-RANDOM</string>
+    <key>BIND</key>
+    <string>100.121.113.38</string>
+    <key>PORT</key>
+    <string>7801</string>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/psi-reader-agent.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/psi-reader-agent.log</string>
+</dict>
+</plist>

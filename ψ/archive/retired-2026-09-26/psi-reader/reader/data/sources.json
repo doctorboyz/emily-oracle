@@ -1,0 +1,10 @@
+[
+  {
+    "id": "icloud",
+    "label": "iCloud Drive",
+    "type": "local",
+    "roots": [
+      { "name": "iCloud Drive", "path": "/files/icloud" }
+    ]
+  }
+]

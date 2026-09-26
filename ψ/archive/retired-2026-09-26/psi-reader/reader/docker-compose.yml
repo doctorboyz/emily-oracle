@@ -1,0 +1,33 @@
+# psi-reader — Docker Compose
+# Joins infra-oracle's external `server-network` and reuses its `tunnel` container.
+# Public route is added in Cloudflare Zero Trust: reader.<domain> -> http://psi-reader:3000
+services:
+  psi-reader:
+    build: .
+    container_name: psi-reader
+    restart: unless-stopped
+    networks:
+      - server-network
+    environment:
+      - TZ=Asia/Bangkok
+      - SOURCES_FILE=/data/sources.json
+      - DB_PATH=/data/annotations.db
+      - PORT=3000
+    volumes:
+      - ./data:/data
+      # iCloud Drive (same Apple ID → auto-syncs to iPad/Mac) bind-mounted read-only.
+      # Desktop & Documents sync must be enabled in System Settings → Apple ID → iCloud.
+      - "/Users/doctorboyz/Library/Mobile Documents/com~apple~CloudDocs:/files/icloud:ro"
+    ports:
+      - "3010:3000"   # direct Tailscale access; tunnel uses internal 3000 via container name
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  server-network:
+    external: true

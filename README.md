@@ -23,9 +23,9 @@
 emily (root seed, born 2026-04-21)
 ├── god-port (trading, consolidated from broky+metty, born 2026-04-29)
 ├── nexus (dispatcher+coordinator, consolidated from texty+pm, born 2026-05-07) — RETIRED 2026-09
-├── kappy (knowledge, LINE bot, born 2026-04-30)
-├── mkt (marketing, born 2026-05-05)
-├── dev (full-stack dev, born 2026-05-07)
+├── kappy (knowledge, LINE bot, born 2026-04-30) — RETIRED 2026-09-26
+├── mkt (marketing, born 2026-05-05) — ABSORBED 2026-09-26 → ψ/archive/retired-2026-09-26
+├── dev (full-stack dev, born 2026-05-07) — RETIRED 2026-09-26
 └── fammee (family, born 2026-05-07)
 ```
 
@@ -34,9 +34,9 @@ emily (root seed, born 2026-04-21)
 | emily | Root seed | สร้างทัพ, framework, principles |
 | god-port | Trading | วิเคราะห์ + execute trades (Broky+Metty) |
 | nexus | ~~Dispatcher+Coordinator~~ | **RETIRED 2026-09** — Telegram/secretary ตอนนี้ดูแลโดย Hermes (@boyz_hermes_bot) |
-| kappy | Knowledge | Qdrant vector search + LINE bot |
-| mkt | Marketing | Marketing agency |
-| dev | Development | Full-stack dev team |
+| kappy | ~~Knowledge~~ | **RETIRED 2026-09-26** — repo หาย, daemon ถูก unload |
+| mkt | ~~Marketing~~ | **ABSORBED 2026-09-26** — essence + history อยู่ที่ ψ/archive/retired-2026-09-26 |
+| dev | ~~Development~~ | **RETIRED 2026-09-26** — history อยู่บน GitHub |
 | fammee | Family | Family management |
 
 ---

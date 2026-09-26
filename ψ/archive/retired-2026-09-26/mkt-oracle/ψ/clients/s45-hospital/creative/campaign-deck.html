@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S45 Hospital — Marketing Campaign Strategy</title>
+<style>
+  :root {
+    --white: #FFFFFF;
+    --primary: #3CBEB1;
+    --primary-dark: #2A9D8F;
+    --primary-light: #E6F7F5;
+    --navy: #1B2A4A;
+    --warm: #F5F0EB;
+    --blush: #F0DED8;
+    --gold: #C9A96E;
+    --text: #2D2D2D;
+    --text-light: #6B6B6B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Sukhumvit Set', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    background: var(--white);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 { font-family: 'Sukhumvit Set', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--primary-dark); letter-spacing: -0.01em; font-weight: 600; }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: var(--white);
+    text-align: center;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -30%;
+    width: 80vw; height: 80vw;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .hero-logo {
+    width: 120px; margin-bottom: 2rem;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: var(--white);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .hero h1 span { color: rgba(255,255,255,0.9); font-weight: 600; }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    opacity: 0.8;
+    max-width: 700px;
+    margin-bottom: 2rem;
+  }
+  .hero-meta {
+    display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+    font-size: 0.85rem; opacity: 0.6;
+  }
+  .hero-meta div { text-align: center; }
+  .hero-meta strong { display: block; font-size: 1.2rem; opacity: 1; color: #FFFFFF; }
+
+  /* Navigation */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--warm);
+    padding: 0.75rem 2rem;
+    display: flex; gap: 1.5rem; overflow-x: auto;
+    font-size: 0.85rem; font-weight: 500;
+  }
+  .nav a {
+    color: var(--text-light); text-decoration: none; white-space: nowrap;
+    padding: 0.5rem 0; border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+  }
+  .nav a:hover, .nav a.active { color: var(--primary-dark); border-color: var(--primary); }
+
+  /* Sections */
+  .section {
+    padding: 5rem 2rem;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 0.5rem;
+    position: relative; display: inline-block;
+  }
+  .section-title::after {
+    content: ''; position: absolute; bottom: -8px; left: 0;
+    width: 60px; height: 3px; background: var(--primary);
+  }
+  .section-subtitle {
+    color: var(--text-light); font-size: 1.05rem; margin-bottom: 3rem;
+    max-width: 700px;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--warm);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(42,157,143,0.10);
+  }
+  .card-badge {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+    background: var(--blush); color: var(--primary-dark);
+  }
+  .card-badge.gold { background: var(--primary); color: var(--white); }
+  .card-badge.navy { background: var(--primary-dark); color: var(--white); }
+  .card h3 { font-size: 1.3rem; margin-bottom: 0.75rem; }
+  .card p { color: var(--text-light); font-size: 0.95rem; }
+  .card ul { list-style: none; margin-top: 1rem; }
+  .card ul li { padding: 0.35rem 0; font-size: 0.9rem; color: var(--text); }
+  .card ul li::before {
+    content: '—'; color: var(--primary); margin-right: 0.5rem; font-weight: 700;
+  }
+
+  /* Strategy pillar */
+  .pillar {
+    background: var(--warm);
+    border-radius: 16px;
+    padding: 3rem;
+    margin-bottom: 3rem;
+  }
+  .pillar-header {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .pillar-number {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--primary-dark); color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pillar h2 { font-size: 2rem; margin: 0; }
+  .pillar-desc { color: var(--text-light); margin-top: 0.5rem; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+  }
+  th, td { padding: 0.9rem 1rem; text-align: left; }
+  th {
+    background: var(--primary-dark); color: #FFFFFF;
+    font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  tr:nth-child(even) { background: var(--warm); }
+  td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+  /* Timeline */
+  .timeline {
+    position: relative; padding-left: 2rem; margin: 2rem 0;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--primary);
+  }
+  .timeline-item {
+    position: relative; padding-bottom: 2rem;
+  }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -2rem; top: 0.3rem;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--primary); margin-left: -5px;
+  }
+  .timeline-item strong { color: var(--primary-dark); display: block; margin-bottom: 0.3rem; }
+  .timeline-item span { color: var(--text-light); font-size: 0.9rem; }
+
+  /* Metrics */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.5rem; margin: 2rem 0;
+  }
+  .metric {
+    text-align: center; padding: 1.5rem;
+    background: var(--white); border-radius: 12px;
+    border: 1px solid var(--warm);
+  }
+  .metric-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem; color: var(--primary-dark); font-weight: 600; line-height: 1;
+  }
+  .metric-label { font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Quote */
+  .quote {
+    background: var(--primary-dark); color: var(--white);
+    padding: 3rem; border-radius: 16px; margin: 3rem 0;
+    position: relative;
+  }
+  .quote::before {
+    content: '“'; font-family: 'Cormorant Garamond', serif;
+    font-size: 8rem; position: absolute; top: -1rem; left: 1rem;
+    opacity: 0.15; color: #FFFFFF;
+  }
+  .quote p {
+    font-size: 1.25rem; font-style: italic; position: relative; z-index: 1;
+    line-height: 1.7;
+  }
+  .quote footer {
+    margin-top: 1rem; font-size: 0.85rem; opacity: 0.7;
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--primary-dark); color: var(--white);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .footer-logo {
+    width: 80px; filter: brightness(0) invert(1); opacity: 0.7;
+    margin-bottom: 1rem;
+  }
+  .footer p { opacity: 0.6; font-size: 0.85rem; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .section { padding: 3rem 1.25rem; }
+    .pillar { padding: 2rem 1.25rem; }
+    .nav { padding: 0.75rem 1rem; }
+  }
+
+  /* Print */
+  @media print {
+    .nav { display: none; }
+    .hero { min-height: auto; padding: 2rem; }
+    .section { padding: 2rem 1rem; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <img src="../brand/s45.png" alt="S45" class="hero-logo">
+  <h1>Marketing Campaign Strategy<br><span>S45 Hospital</span></h1>
+  <p class="hero-sub">
+    จาก S45 Clinic สู่ S45 Hospital — ก้าวใหม่แห่งความงามที่รักษาได้<br>
+    กลยุทธ์การตลาดครบวงจร 3 แนวทางหลัก
+  </p>
+  <div class="hero-meta">
+    <div><strong>3</strong> Strategic Pillars</div>
+    <div><strong>6+</strong> Service Domains</div>
+    <div><strong>2</strong> Target Markets</div>
+    <div><strong>10</strong> Doctors</div>
+  </div>
+</section>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="#p1">Pillar 1: PR เปิดตัว</a>
+  <a href="#p2">Pillar 2: Open Rhinoplasty</a>
+  <a href="#p3">Pillar 3: Expand Services</a>
+  <a href="#kpi">KPIs & Metrics</a>
+  <a href="#timeline">Timeline</a>
+</nav>
+
+<!-- PILLAR 1 -->
+<section class="section" id="p1">
+  <div class="pillar">
+    <div class="pillar-header">
+      <div class="pillar-number">1</div>
+      <div>
+        <h2>PR เปิดตัว S45 Hospital</h2>
+        <p class="pillar-desc">สร้างความน่าเชื่อถือและ Awareness ระดับสูงสุด ต่อทั้งลูกค้าและบุคลากร</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Target Audiences</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-badge">ลูกค้า</span>
+        <h3>เพิ่ม Credibility & Awareness</h3>
+        <ul>
+          <li>S45 Hospital — "ศัลยกรรมครบวงจรระดับพรีเมียม"</li>
+          <li>Press launch ขนาดใหญ่ — สื่อหลัก สื่อออนไลน์ KOL</li>
+          <li>Grand Opening Live — Facebook Live + TikTok ทัวร์ห้องผ่าตัด ห้องพัก</li>
+          <li>CEO Story — "จากคลินิก Patong สู่ Hospital กรุงเทพ"</li>
+          <li>Before/After Gallery รีวิวระยะยาว (3 ปี+) จาก Wongnai</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge navy">บุคลากร</span>
+        <h3>รับการขยายตัวขององค์กร</h3>
+        <ul>
+          <li>เปิดตัว Hospital พร้อม Recruitment Campaign</li>
+          <li>วิสัญญีแพทย์ / พยาบาล / แพทย์เฉพาะทางใหม่</li>
+          <li>"ทำงานกับทีมที่ดีที่สุด" — Employer Branding</li>
+          <li>โปรแกรม Training & Development สำหรับ staff ทุกระดับ</li>
+          <li>เปิดบ้านต้อนรับ Medical Tourism staff (Interpreter, Coordinator)</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">PR Tactics</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Tactic</th><th>Channel</th><th>Target</th><th>KPI</th></tr>
+        <tr><td>Press Conference</td><td>News, Online Media</td><td>Mass Awareness</td><td>100+ news mentions</td></tr>
+        <tr><td>Hospital Tour Video</td><td>YouTube, TikTok</td><td>Lifestyle Audience</td><td>1M+ views</td></tr>
+        <tr><td>Doctor Team Reveal</td><td>Social All</td><td>Trust Building</td><td>Engagement 5%+</td></tr>
+        <tr><td>Recruitment Fair</td><td>Job platforms, LINE</td><td>Medical Professionals</td><td>500+ applicants</td></tr>
+        <tr><td>Influencer Blitz</td><td>TikTok, IG</td><td>Gen Z + Millennials</td><td>50+ influencers</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PILLAR 2 -->
+<section class="section" id="p2">
+  <div class="pillar">
+    <div class="pillar-header">
+      <div class="pillar-number">2</div>
+      <div>
+        <h2>เสริมความแข็งแกร่ง Open Rhinoplasty</h2>
+        <p class="pillar-desc">กิจกรรมการตลาดแบบวัดผลได้ ตั้งแต่ Production → Ads → Customer Advocate → Sales Team</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Internal Marketing Engine</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-badge gold">Production</span>
+        <h3>Content Factory</h3>
+        <ul>
+          <li>Before/After 4K — ถ่ายทุกเคส มาตรฐานเดียวกันทั้งหมด</li>
+          <li>"หมอตี้ตอบ" series — Q&A ทุกสัปดาห์</li>
+          <li>3D Animation — อธิบาย Open Rhinoplasty technique</li>
+          <li>Patient Journey Documentary — ปรึกษา → ผ่าตัด → พักฟื้น</li>
+          <li>TikTok Shorts — 15-30 วินาที hook + CTA</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge">Ads</span>
+        <h3>Performance Marketing</h3>
+        <ul>
+          <li>Google Search: "แก้จมูกที่อื่นไม่รับ" "จมูกติดเชื้อ แก้ที่ไหน"</li>
+          <li>Facebook/IG: Before/After carousel + Lead Gen forms</li>
+          <li>TikTok Spark Ads — boost influencer review content</li>
+          <li>YouTube TrueView: Long-form educational + testimonial</li>
+          <li>LINE OA: Retarget คนที่ add LINE แต่ยังไม่จอง</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge navy">Advocate</span>
+        <h3>Customer Advocate Program</h3>
+        <ul>
+          <li>"Wall of Fame" — คนไข้ revision ที่ S45 ช่วยชีวิต</li>
+          <li>Patient Ambassador — คนไข้ที่ยินดีให้สัมภาษณ์ รับสิทธิพิเศษ</li>
+          <li>Referral Program — แนะนำเพื่อน รับส่วนลด/เครดิต</li>
+          <li>Wongnai/Lemon8 Seed Campaign — ส่งคนไข้รีวิวบน platform</li>
+          <li>"จากจมูกพัง สู่จมูกปัง" — video testimonial series</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge gold">Sales</span>
+        <h3>Sales Team Enablement</h3>
+        <ul>
+          <li>Consultation Script — สร้าง trust ตั้งแต่นาทีแรก</li>
+          <li>Sales Dashboard — ติดตาม lead จากทุก channel</li>
+          <li>Training: Emotional Intelligence + Medical Knowledge</li>
+          <li>CRM Integration — LINE OA + Website + Call center</li>
+          <li>KPI: Conversion rate ปรึกษา → จอง (target 40%+)</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Target Personas</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-badge">ลูกค้าใหม่</span>
+        <h3>Primary Cases</h3>
+        <p>คนที่เสริมจมูกครั้งแรก กังวลเรื่อง safety</p>
+        <ul>
+          <li>อายุ 18-35 ปี</li>
+          <li>กลัวเคสหลุด กลัวซิลิโคนทะลุ</li>
+          <li>ต้องการ natural look</li>
+          <li>Content: "ทำไมต้องจ่ายหลักแสน?" educational series</li>
+          <li>Channel: TikTok, Instagram, LINE</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge navy">ลูกค้าเก่า</span>
+        <h3>Revision Cases</h3>
+        <p>คนที่เคยทำที่อื่นแล้วพัง กำลังหาที่แก้</p>
+        <ul>
+          <li>อายุ 25-45 ปี</li>
+          <li>Trauma จากคลินิกอื่น</li>
+          <li>ต้องการ "ผู้ไถ่ถอน" — ไม่ใช่แค่หมอ</li>
+          <li>Content: "เกิดมาเพื่อแก้" — rescuer narrative</li>
+          <li>Channel: Google Search, YouTube, Pantip, Wongnai</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="quote">
+      <p>แทนที่จะหลีกเลี่ยงการพูดถึงเคสล้มเหลว S45 กลับใช้ภาพ "จมูกติดเชื้อ" หรือ "ซิลิโคนทะลุ" เป็นเนื้อหาหลักทางการตลาด — เพราะถ้าหมอท่านหนึ่งสามารถแก้โครงสร้างที่แหลกเหลวให้กลับมางดงามได้ การผ่าตัดคนไข้ที่เนื้อเยื่อยังสมบูรณ์ย่อมเป็นเรื่องง่ายและปลอดภัยสูงสุด</p>
+      <footer>— S45 Strategic Insight: The Rescuer Archetype</footer>
+    </div>
+  </div>
+</section>
+
+<!-- PILLAR 3 -->
+<section class="section" id="p3">
+  <div class="pillar">
+    <div class="pillar-header">
+      <div class="pillar-number">3</div>
+      <div>
+        <h2>Expand Service Domain</h2>
+        <p class="pillar-desc">ขยายจากจมูก สู่ Facial, Body Contour, Wellness, Hair, Skin — ทั้งตลาดในประเทศและต่างประเทศ</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Service Lines</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-badge">Facial</span>
+        <h3>Face & Structure</h3>
+        <ul>
+          <li>ดึงหน้า (Deep Plane Facelift) — 59,000 บาท/จุด</li>
+          <li>ส่องกล้องยกคิ้ว (Endotine) — 89,900 บาท</li>
+          <li>เสริมหน้าผาก (Custom) — 99,000 บาท</li>
+          <li>เสริมคาง — 14,900 บาท</li>
+          <li>ยกแก้ม + เลื่อนไรผม — 79,000 บาท</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge gold">Body</span>
+        <h3>Body Contour</h3>
+        <ul>
+          <li>เสริมหน้าอก Motiva Silk — 69,900 บาท</li>
+          <li>ดูดไขมัน + กระชับ</li>
+          <li>ตัดหนังหน้าท้อง (Tummy Tuck) — 99,000 บาท</li>
+          <li>ลดน้ำหนัก + ฟื้นฟูรูปร่าง</li>
+          <li>Target: มารดาหลังคลอด, ลดน้ำหนักสำเร็จ</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge navy">Wellness</span>
+        <h3>Longevity & Wellness</h3>
+        <ul>
+          <li>IV Vitamin Therapy / IV Drip</li>
+          <li>Hyperbaric Oxygen Therapy</li>
+          <li>Anti-aging programs</li>
+          <li>สุขภาพองค์รวมจากภายในสู่ภายนอก</li>
+          <li>Target: High Net Worth, วัยทำงาน</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge">Hair</span>
+        <h3>Hair Restoration</h3>
+        <ul>
+          <li>Hair Transplant — FUE / FUT</li>
+          <li>เลื่อนไรผม (Hairline Lowering)</li>
+          <li>PRP Hair Treatment</li>
+          <li>Target: ผู้ชายวัย 30-50, ผู้หญิงผมบาง</li>
+          <li>Channel: YouTube (long-form education)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge gold">Skin</span>
+        <h3>Skin Quality & Rejuvenation</h3>
+        <ul>
+          <li>Filler Program (Hyaluronic Acid)</li>
+          <li>Ulthera SPT — ยกกระชับ</li>
+          <li>LDM MED — ฟื้นฟูระดับเซลล์</li>
+          <li>Botox, Thread Lift</li>
+          <li>Target: 25-45, maintenance & prevention</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-badge navy">Functional</span>
+        <h3>Functional Medicine</h3>
+        <ul>
+          <li>รักษาภูมิแพ้ — ตรวจฟรี 10 เคสแรก</li>
+          <li>นอนกรน (Sleep Apnea)</li>
+          <li>Deviated Septum + Rhinoplasty combo</li>
+          <li>Target: ผู้ชาย, วัยทำงาน, ครอบครัว</li>
+          <li>Funnel: รักษา → ศัลยกรรม → Loyalty</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Market Segmentation</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Market</th><th>Target Segment</th><th>Services</th><th>Channel</th><th>Content Strategy</th></tr>
+        <tr>
+          <td rowspan="3"><strong>ในประเทศ</strong><br>85%</td>
+          <td>Entry-Level<br>(18-30)</td>
+          <td>Iconic Nose, เสริมคาง, Skin</td>
+          <td>TikTok, LINE</td>
+          <td>Before/After, Challenge, KOL</td>
+        </tr>
+        <tr>
+          <td>Mid-Tier<br>(25-40)</td>
+          <td>Open Nose, Facelift, Body</td>
+          <td>Facebook, IG, YouTube</td>
+          <td>Educational, Testimonial, Doctor content</td>
+        </tr>
+        <tr>
+          <td>Premium<br>(35-55)</td>
+          <td>Revision, Custom Implant, Wellness</td>
+          <td>LINE, YouTube, PR</td>
+          <td>Documentary, Longevity, Doctor authority</td>
+        </tr>
+        <tr>
+          <td rowspan="2"><strong>ต่างประเทศ</strong><br>15%</td>
+          <td>ASEAN<br>(อินโดนีเซีย, กัมพูชา, ลาว)</td>
+          <td>Nose, Face, Body</td>
+          <td>Facebook, TikTok, Local KOL</td>
+          <td>Thai beauty standard + Affordable luxury</td>
+        </tr>
+        <tr>
+          <td>Global<br>(จีน, ยุโรป, ออสเตรเลีย, อเมริกา)</td>
+          <td>Full Medical Tourism Package</td>
+          <td>Google, Instagram, Medical Tourism sites</td>
+          <td>English content, Hospital grade, Safety</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom:1rem;color:var(--primary-dark);">International Expansion Roadmap</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <strong>Phase 1: ASEAN Focus (2026 H2)</strong>
+        <span>อินโดนีเซีย, กัมพูชา, ลาว — ใช้ local KOL + Facebook/TikTok ads + Thai content subtitles</span>
+      </div>
+      <div class="timeline-item">
+        <strong>Phase 2: Chinese Market (2027)</strong>
+        <span>WeChat, Xiaohongshu (Little Red Book), จัด Fam Trip ให้ Chinese KOLs, Medical Tourism package</span>
+      </div>
+      <div class="timeline-item">
+        <strong>Phase 3: Western Markets (2027-2028)</strong>
+        <span>English website + Google Ads + Medical Tourism platforms (Medical Departures, Qunomedical)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section class="section" id="kpi">
+  <h2 class="section-title">KPIs & Metrics</h2>
+  <p class="section-subtitle">วัดผลทุกกิจกรรม — ตั้งแต่ Awareness จนถึง Revenue</p>
+
+  <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Pillar 1: PR เปิดตัว Hospital</h3>
+  <div class="metrics">
+    <div class="metric"><div class="metric-value">100+</div><div class="metric-label">News Mentions</div></div>
+    <div class="metric"><div class="metric-value">1M+</div><div class="metric-label">Video Views</div></div>
+    <div class="metric"><div class="metric-value">50+</div><div class="metric-label">Influencers</div></div>
+    <div class="metric"><div class="metric-value">500+</div><div class="metric-label">Job Applicants</div></div>
+    <div class="metric"><div class="metric-value">10K+</div><div class="metric-label">LINE Friends New</div></div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Pillar 2: Open Rhinoplasty</h3>
+  <div class="metrics">
+    <div class="metric"><div class="metric-value">40%+</div><div class="metric-label">Consult → Book</div></div>
+    <div class="metric"><div class="metric-value">5x</div><div class="metric-label">ROAS Target</div></div>
+    <div class="metric"><div class="metric-value">200</div><div class="metric-label">Customer Advocates</div></div>
+    <div class="metric"><div class="metric-value">50</div><div class="metric-label">Reviews/Month</div></div>
+    <div class="metric"><div class="metric-value">30%</div><div class="metric-label">Revision Case Share</div></div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;color:var(--primary-dark);">Pillar 3: Expand Services</h3>
+  <div class="metrics">
+    <div class="metric"><div class="metric-value">30%</div><div class="metric-label">Non-Nose Revenue</div></div>
+    <div class="metric"><div class="metric-value">20%</div><div class="metric-label">Intl Patient Growth</div></div>
+    <div class="metric"><div class="metric-value">15%</div><div class="metric-label">Repeat Customer Rate</div></div>
+    <div class="metric"><div class="metric-value">100</div><div class="metric-label">Functional Med Leads</div></div>
+    <div class="metric"><div class="metric-value">5</div><div class="metric-label">New Service Lines</div></div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="section" id="timeline">
+  <h2 class="section-title">Campaign Timeline</h2>
+  <p class="section-subtitle">12-month rollout ตั้งแต่ pre-launch จนถึง scale</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <strong>Q3 2026 — Pre-Launch (Jul-Sep)</strong>
+      <span>Hospital countdown content, Doctor team reveal, Recruitment campaign, Press kit preparation, Influencer seeding</span>
+    </div>
+    <div class="timeline-item">
+      <strong>Q4 2026 — Grand Opening (Oct-Dec)</strong>
+      <span>Press conference, Grand opening live, Influencer blitz, Early bird promotions, International PR launch</span>
+    </div>
+    <div class="timeline-item">
+      <strong>Q1 2027 — Scale (Jan-Mar)</strong>
+      <span>Open Rhinoplasty campaign push, Customer advocate program launch, First international patient package, Service line expansion pilot</span>
+    </div>
+    <div class="timeline-item">
+      <strong>Q2 2027 — Optimize (Apr-Jun)</strong>
+      <span>Data-driven creative refresh, A/B test pricing bundles, ASEAN KOL program, Doctor influencer training, CRM optimization</span>
+    </div>
+  </div>
+</section>
+
+<!-- Budget -->
+<section class="section">
+  <h2 class="section-title">Budget Allocation</h2>
+  <p class="section-subtitle">ประมาณการรายเดือนสำหรับทั้ง 3 pillars</p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Category</th><th>% of Budget</th><th>Monthly (Est.)</th><th>Purpose</th></tr>
+      <tr><td>Facebook/Instagram Ads</td><td>30%</td><td>450K THB</td><td>Primary conversion driver — lead gen + retargeting</td></tr>
+      <tr><td>TikTok Ads + Content</td><td>20%</td><td>300K THB</td><td>Awareness + Top-of-funnel — Spark Ads, influencer boosts</td></tr>
+      <tr><td>Google Ads + SEO</td><td>15%</td><td>225K THB</td><td>Search intent capture — high-intent keywords</td></tr>
+      <tr><td>Influencer Program</td><td>15%</td><td>225K THB</td><td>Brand trust + Social proof — all tiers</td></tr>
+      <tr><td>LINE OA + CRM</td><td>10%</td><td>150K THB</td><td>Remarketing + Broadcast + Chatbot</td></tr>
+      <tr><td>PR + Content Production</td><td>7%</td><td>105K THB</td><td>Press, video production, creative assets</td></tr>
+      <tr><td>International Marketing</td><td>3%</td><td>45K THB</td><td>English content, medical tourism platforms</td></tr>
+    </table>
+  </div>
+
+  <div class="metrics" style="margin-top:2rem;">
+    <div class="metric"><div class="metric-value">1.5M</div><div class="metric-label">Monthly Budget (THB)</div></div>
+    <div class="metric"><div class="metric-value">18M</div><div class="metric-label">Annual Budget (THB)</div></div>
+    <div class="metric"><div class="metric-value">5x</div><div class="metric-label">Target ROAS</div></div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <img src="../brand/s45.png" alt="S45" class="footer-logo">
+  <p><strong>S45 Hospital</strong> — Marketing Campaign Strategy</p>
+  <p>Prepared by Mkt Oracle | May 2026 | For Internal Review</p>
+</footer>
+
+</body>
+</html>

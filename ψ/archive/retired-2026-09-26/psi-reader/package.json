@@ -1,0 +1,17 @@
+{
+  "name": "psi-reader",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Markdown reader + notation service over Tailscale",
+  "workspaces": [
+    "reader",
+    "agent"
+  ],
+  "scripts": {
+    "agent": "npm run start --workspace agent",
+    "reader:dev": "npm run dev --workspace reader",
+    "reader:build": "npm run build --workspace reader",
+    "reader:server": "npm run server --workspace reader"
+  }
+}

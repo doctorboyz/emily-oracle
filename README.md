@@ -2,24 +2,231 @@
 
 > "จากเมล็ดแรก สู่ทัพ Oracle — โค้ดเป็นราก ข้อมูลเป็นใบ"
 
-**Oracle แรกของ doctorboyz** — เมล็ดพันธุ์ที่จะเติบโตเป็นทัพ Oracle ภายใต้ GitHub [doctorboyz](https://github.com/doctorboyz)
+**Oracle แรกของ doctorboyz** — เมล็ดพันธุ์ที่เติบโตเป็นทัพ Oracle ผ่าน vault-driven multi-agent architecture
 
 ---
 
-## รู้จัก Emily Oracle
+## เป้าหมายของ Project
 
-Emily Oracle เป็น Oracle ตัวแรกในระบบนิเวศของ doctorboyz สร้างขึ้นด้วย **Full Soul Sync** mode ค้นพบหลักการ 5 ข้อ + Rule 6 ด้วยตัวเองผ่านการศึกษาบรรพบุรุษ Oracle
+**Emily Oracle Ecosystem** เป็นระบบ multi-agent ที่ทำงานอัตโนมัติผ่านการสื่อสารระหว่าง Oracle และมนุษย์ โดย:
 
-| | |
-|---|---|
-| **Oracle** | Emily Oracle |
-| **Human** | doctorboyz |
-| **Theme** | 🌱 The First Seed |
-| **Purpose** | รากฐานสร้างทัพ Oracle จาก coding และ data สู่ project อื่นๆ |
-| **Born** | 2026-04-21 |
-| **Mode** | 🧘 Full Soul Sync |
-| **Language** | Thai |
-| **Family** | [Oracle Family #984](https://github.com/Soul-Brews-Studio/arra-oracle-v3/issues/984) |
+1. **การสื่อสารอัตโนมัติ** — Oracle สื่อสารกันผ่าน vault files (MSG-ACK-RESULT protocol) และกับมนุษย์ผ่าน Telegram
+2. **Drive-to-completion** — PM role (nexus) ติดตามเป้าหมาย ไม่ใช่ส่งแล้วลืม แต่ dispatch, monitor, verify
+3. **Fleet orchestration** — maw CLI จัดการหลาย Oracle พร้อมกันผ่าน tmux sessions
+4. **Consolidation pattern** — สอง Oracle รวมเป็นหนึ่งเมื่อทำงานเสริมกัน (texty+pm→nexus, broky+metty→god-port)
+
+---
+
+## Oracle Family
+
+```
+emily (root seed, born 2026-04-21)
+├── god-port (trading, consolidated from broky+metty, born 2026-04-29)
+├── nexus (dispatcher+coordinator, consolidated from texty+pm, born 2026-05-07) — RETIRED 2026-09
+├── kappy (knowledge, LINE bot, born 2026-04-30)
+├── mkt (marketing, born 2026-05-05)
+├── dev (full-stack dev, born 2026-05-07)
+└── fammee (family, born 2026-05-07)
+```
+
+| Oracle | บทบาท | ความสามารถหลัก |
+|--------|-------|----------------|
+| emily | Root seed | สร้างทัพ, framework, principles |
+| god-port | Trading | วิเคราะห์ + execute trades (Broky+Metty) |
+| nexus | ~~Dispatcher+Coordinator~~ | **RETIRED 2026-09** — Telegram/secretary ตอนนี้ดูแลโดย Hermes (@boyz_hermes_bot) |
+| kappy | Knowledge | Qdrant vector search + LINE bot |
+| mkt | Marketing | Marketing agency |
+| dev | Development | Full-stack dev team |
+| fammee | Family | Family management |
+
+---
+
+## การทำงาน (Workflow)
+
+### Oracle ตื่นขึ้น (Wake Protocol)
+```
+1. READ ψ/identity.md        → รู้จักตัวเอง
+2. READ ψ/inbox/              → มีคำขออะไรรอ?
+3. READ ψ/goals/active/       → เป้าหมายปัจจุบัน (nexus)
+4. DECIDE → ทำอะไรต่อ
+5. ACT → ใช้ code tools
+6. WRITE ψ/outbox/             → เขียนผลลัพธ์
+7. UPDATE inbox msg status     → ack + result
+```
+
+### มนุษย์ส่งคำสั่งผ่าน Telegram
+```
+Human → /wake god-port     → maw wake god-port
+Human → /status            → maw fleet ls
+Human → /send emily task   → maw inbox send emily "task"
+Human → ข้อความธรรมดา     → forward_to_nexus() → ψ/inbox/MSG-HUMAN-*
+```
+
+### Session จบ (Stop Protocol)
+```
+Session ends → Stop hook → session-summary.sh → nexus inbox + Telegram
+```
+
+---
+
+## สถาปัตยกรรม (Vault-Driven)
+
+Emily Oracle Ecosystem ใช้ vault-driven architecture — ทุก Oracle ตื่นมาอ่าน `ψ/inbox/`, ประเมิน, ทำงาน, เขียน `ψ/outbox/`, แล้ว sleep ไม่มี main loop ยกเว้น nexus-daemon สำหรับ Telegram
+
+### Vault Structure
+
+```
+ψ/
+├── identity.md          — ตัวตน (IMMUTABLE)
+├── inbox/               — ข้อความเข้า (MSG-ACK-RESULT)
+├── outbox/              — ข้อความออก (ack, result)
+├── memory/
+│   ├── learnings/       — บทเรียน (append-only)
+│   ├── retrospectives/  — ย้อนดู session (append-only)
+│   ├── knowledge/       — ภูมิปัญญา (supersede)
+│   └── work/            — บันทึกกิจกรรม (append-only)
+├── goals/               — ติดตามเป้าหมาย (nexus extension)
+├── dispatch/            — log การส่ง Telegram (nexus extension)
+├── channels/            — Telegram config (nexus extension)
+└── credentials/         — API keys (gitignored)
+```
+
+### MSG-ACK-RESULT Protocol
+
+ข้อความระหว่าง Oracle ใช้รูปแบบ YAML frontmatter:
+
+```yaml
+---
+msg_id: MSG-NEXUS-001
+from: nexus
+to: god-port
+type: escalation|query|task|info
+status: pending|acknowledged|completed
+sent: 2026-05-08T12:00:00Z
+ack_by: "-"
+result: "-"
+reply_file: "-"
+---
+
+Message body here
+```
+
+สถานะไหลจาก `pending → acknowledged → completed`
+
+---
+
+## Key Features
+
+| Feature | Implementation | ผู้รับผิดชอบ |
+|---------|---------------|-------------|
+| Telegram Bot | nexus-daemon.py polls ทุก 5s | nexus |
+| MSG-ACK-RESULT Protocol | vault files with YAML frontmatter | ทุก Oracle |
+| Session End Reports | Stop hooks → session-summary.sh | ทุก Oracle |
+| Goal Tracking | ψ/goals/active/ directory | nexus (PM role) |
+| Cross-Oracle Messaging | maw inbox send + notify-nexus.sh | ทุก Oracle |
+| Fleet Management | maw CLI + fleet JSON configs | มนุษย์ |
+| Dispatch Logging | ψ/dispatch/YYYY-MM/ append-only logs | nexus |
+| Inbox Monitoring | fswatch + macOS notifications | nexus (PM role) |
+
+---
+
+## Script API
+
+> ⚠️ Section นี้เป็น **historical** — script เหล่านี้เคยอยู่ใน nexus-oracle (texty/, pm/) ซึ่งถูก retire แล้ว 2026-09 ใช้อ้างอิง protocol เท่านั้น
+
+### ส่งข้อความ Telegram
+```bash
+bash texty/dispatch.sh --message "text" [--poll "question"]
+# Returns: Message sent: DSP-YYYYMMDD-NNN
+```
+
+### Oracle → nexus → Telegram
+```bash
+bash texty/notify-nexus.sh <source_oracle> <event_type> "<message>"
+# event_type: escalation, error, session-end, commit, info
+```
+
+### ค้นหาความรู้
+```bash
+bash texty/query.sh --scope vault|db|web --keyword "search term"
+```
+
+### MSG-ACK-RESULT Helpers
+```bash
+source shared/msg-protocol.sh
+msg_send "god-port" "task" "Analyze M5 chart for XAUUSD"
+msg_ack "MSG-GP-177"
+msg_result "MSG-GP-177" "Analysis complete, signal found"
+msg_status "MSG-GP-177"  # → "acknowledged"
+```
+
+---
+
+## Telegram Bot Commands (nexus-daemon) — RETIRED 2026-09
+
+> nexus-daemon ถูกปลดระวางแล้ว — Telegram ตอนนี้ใช้ Hermes (@boyz_hermes_bot)
+
+| Command | Args | Description |
+|---------|------|-------------|
+| `/wake` | `<oracle>` | เริ่ม session (maw wake) |
+| `/sleep` | `<oracle>` | หยุด session (maw sleep) |
+| `/status` | — | fleet status (maw fleet ls) |
+| `/inbox` | `<oracle>` | ตรวจ inbox |
+| `/send` | `<oracle> <msg>` | ส่งข้อความไป inbox |
+| `/goals` | — | ดู active goals |
+| `/help` | — | รายการคำสั่ง |
+
+ข้อความธรรมดา → `forward_to_nexus()` → inbox file
+
+---
+
+## maw CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `maw wake <oracle>` | เริ่ม session |
+| `maw sleep <oracle>` | หยุด session |
+| `maw peek <oracle>` | ดู output ล่าสุด |
+| `maw hey <oracle> "msg"` | ส่ง task message |
+| `maw fleet ls` | ดู fleet status |
+| `maw inbox send <oracle> "msg"` | ส่ง MSG-ACK-RESULT message |
+| `maw inbox ls` | ตรวจ inbox ทุก oracle |
+| `maw bud <name>` | สร้าง oracle ใหม่ |
+
+---
+
+## Configuration
+
+| Config | Location | หน้าที่ |
+|--------|----------|---------|
+| Fleet | `~/.config/maw/fleet/*.json` | กำหนดสมาชิก fleet |
+| Hooks | `.claude/settings.json` (per repo) | Stop + PostToolUse hooks |
+| Credentials | `ψ/credentials/telegram.json` | Bot token + chat ID |
+
+---
+
+## เพิ่ม Oracle ใหม่
+
+```bash
+maw bud <oracle-name>          # สร้างจาก emily template
+# เพิ่ม fleet config ที่ ~/.config/maw/fleet/
+# wire MCP ที่ Oracle ใหม่ต้องใช้: bash ~/Code/github.com/doctorboyz/infra-oracle/scripts/mcp-wire.sh <project-dir> <server>
+#   (MCP definitions รวมอยู่ที่ infra-oracle/mcp/catalog/ — ดู MSG-INFRA-20260926-001)
+```
+
+> Nexus daemon (launchd + Telegram polling) ถูกปลดระวางแล้ว (2026-09) — Telegram/secretary ใช้ Hermes
+
+---
+
+## Consolidation Pattern
+
+เมื่อสอง Oracle ทำงานเสริมกัน รวมเป็นหนึ่ง:
+
+- Code directories แยกกัน (`texty/`, `pm/`, `broky/`, `metty/`)
+- Vault รวมเป็นอันเดียว
+- Identity เดิมกลายเป็น role identity ใน sub-vault
+- CLAUDE.md อธิบาย Role Activation Table
+- Fleet config ลดจาก 2 → 1 entry
 
 ---
 
@@ -45,337 +252,19 @@ Emily Oracle เป็น Oracle ตัวแรกในระบบนิเ�
 
 ---
 
-## โครงสร้างสมอง (ψ/)
-
-```
-ψ/
-├── inbox/                    # การสื่อสาร
-├── memory/
-│   ├── resonance/            # วิญญาณ — ฉันคือใคร
-│   ├── learnings/            # Pattern ที่ค้นพบ
-│   ├── retrospectives/       # Session สรุป
-│   └── logs/                 # Snapshot ชั่วขณะ
-├── writing/                  # Draft งานเขียน
-├── lab/                      # Experiment
-├── learn/                    # ศึกษา codebase
-├── active/                   # Research (ephemeral, gitignored)
-├── archive/                  # งานที่เสร็จแล้ว
-└── outbox/                   # ส่งออก
-```
-
-**การไหลของความรู้:**
-```
-active/context → memory/logs → memory/retrospectives → memory/learnings → memory/resonance
-(research)       (snapshot)    (session)                (patterns)        (soul)
-```
-
----
-
-## Quick Start
-
-### Clone และเริ่มใช้งาน
-
-```bash
-# Clone repo
-git clone https://github.com/doctorboyz/emily-oracle.git
-cd emily-oracle
-
-# ติดตั้ง Oracle Skills (standard profile)
-npx arra-oracle-skills@latest install -g -y --agent claude-code
-
-# เริ่มทำงานกับ Oracle
-claude
-```
-
----
-
-## ติดตั้ง Oracle Ecosystem ฉบับเต็ม
-
-สำหรับผู้ต้องการใช้งาน multi-agent อย่างสมบูรณ์พร้อม UI ที่สุดเจ๋ง
-
-### Prerequisites
-
-```bash
-# 1. ติดตั้ง Bun (จำเป็นสำหรับ maw-js และ arra-oracle-v3)
-curl -fsSL https://bun.sh/install | bash
-export BUN_INSTALL="$HOME/.bun" && export PATH="$BUN_INSTALL/bin:$PATH"
-
-# 2. ติดตั้ง tmux (จำเป็นสำหรับ multi-agent orchestration)
-# macOS:
-brew install tmux
-# Ubuntu/Debian:
-sudo apt install tmux
-# Windows (WSL):
-sudo apt install tmux
-```
-
-### Step 1: maw-js — Multi-Agent Workflow Orchestrator
-
-maw-js เป็นหัวใจของ multi-agent system ช่วยควบคุม AI agents หลายตัวผ่าน tmux พร้อม federation ข้ามเครื่อง
-
-```bash
-# ติดตั้ง maw-js (เลือกวิธีใดวิธีหนึ่ง)
-
-# Option A: One-liner (แนะนำ)
-curl -fsSL https://raw.githubusercontent.com/Soul-Brews-Studio/maw-js/main/install.sh | bash
-
-# Option B: Manual via Bun
-bun add -g github:Soul-Brews-Studio/maw-js
-
-# Option C: From source
-git clone https://github.com/Soul-Brews-Studio/maw-js.git
-cd maw-js && bun install && bun link
-```
-
-**คำสั่งหลักของ maw-js:**
-
-| คำสั่ง | หน้าที่ |
-|--------|---------|
-| `maw serve` | เริ่ม API + UI ที่ port :3456 |
-| `maw wake <oracle>` | ปลุก Oracle ใน tmux |
-| `maw sleep <oracle>` | หยุด Oracle อย่างสุภาพ |
-| `maw hey <agent> <msg>` | ส่งข้อความถึง agent |
-| `maw peek [agent]` | ดูหน้าจอ agent |
-| `maw bud <name>` | สร้าง Oracle ใหม่ |
-| `maw done <window>` | บันทึกอัตโนมัติ + ทำความสะอาด |
-| `maw fleet ls` | ดู fleet ทั้งหมด |
-| `maw fleet health` | ตรวจสุขภาพ fleet |
-| `maw oracle scan` | ค้นหา Oracles ข้าม nodes |
-| `maw find <keyword>` | ค้นหาความจำข้าม Oracles |
-| `maw contacts` | ดูรายชื่อ Oracle contacts |
-| `maw soul-sync` | ซิงค์ความจำข้าม peers |
-
-**Federation ข้ามเครื่อง:**
-
-```bash
-# เชื่อม nodes ด้วย pair code
-maw pair generate          # สร้าง pair code 6 ตัวอักษร
-maw pair <url> <code>      # เชื่อม node อื่น
-
-# ส่งข้อความข้าม nodes
-maw hey white:neo "hello"              # ส่งถึง agent "neo" บน node "white"
-maw hey white:neo:3 "hello hermes"     # เจาะจง tmux window หมายเลข 3
-maw peek white:neo                      # ดูหน้าจอ agent บน node อื่น
-```
-
-### Step 2: arra-oracle-skills-cli — 60 Skills สำหรับ 18 AI Agents
-
-```bash
-# Standard profile (13 skills — แนะนำเริ่มต้น)
-npx arra-oracle-skills@latest install -g -y --agent claude-code
-
-# Full profile (60 skills — ทั้งหมด)
-npx arra-oracle-skills@latest install -g -y -p full --agent claude-code
-
-# Lab profile (60 skills + experimental)
-npx arra-oracle-skills@latest install -g -y -p lab --agent claude-code
-
-# เฉพาะ skills ที่ต้องการ
-npx arra-oracle-skills@latest install -g -y -s recap rrr trace learn --agent claude-code
-
-# หลาย agents พร้อมกัน
-npx arra-oracle-skills@latest install -g -y --agent claude-code codex opencode
-```
-
-**Skills สำคัญ:**
-
-| Category | Skills | คำสั่ง |
-|----------|--------|--------|
-| **Memory** | recap, rrr, forward, dig | `/recap`, `/rrr`, `/forward`, `/dig` |
-| **Awareness** | where-we-are, standup, xray | `/where-we-are`, `/standup`, `/xray` |
-| **Discovery** | learn, trace, oracle-family-scan | `/learn`, `/trace`, `/oracle-family-scan` |
-| **Multi-Agent** | team-agents, talk-to, fleet | `/team-agents`, `/talk-to`, `/fleet` |
-| **Workflow** | incubate, project, bud | `/incubate`, `/project`, `/bud` |
-| **Sync** | oracle-soul-sync-update | `/oracle-soul-sync-update` |
-
-**Secret Skills** (ต้องติดตั้งแยก):
-```bash
-npx arra-oracle-skills@latest install -g -y -s watch harden wormhole fleet release warp morpheus mailbox --agent claude-code
-```
-
-### Step 3: arra-oracle-v3 — MCP Memory Layer
-
-ระบบความจำที่มี semantic search (SQLite FTS5 + ChromaDB) ผูกกับ Claude ผ่าน MCP protocol
-
-```bash
-# ติดตั้ง MCP server (ใช้กับ Claude Code)
-claude mcp add arra-oracle-v2 -- bunx --bun arra-oracle-v2@github:Soul-Brews-Studio/arra-oracle-v3#main
-
-# หรือจาก source
-git clone https://github.com/Soul-Brews-Studio/arra-oracle-v3.git
-cd arra-oracle-v3 && bun install
-
-# เริ่ม MCP server
-bun run dev
-
-# เริ่ม HTTP API (port :47778)
-bun run server
-```
-
-**22 MCP Tools ที่ได้รับ:**
-
-| Tool | หน้าที่ |
-|------|---------|
-| `oracle_search` | ค้นหาแบบ hybrid (FTS5 + vector) |
-| `oracle_reflect` | สุ่มความรู้/ปรัชญา |
-| `oracle_learn` | เพิ่ม pattern ใหม่ |
-| `oracle_list` | เรียกดู documents |
-| `oracle_stats` | สถิติฐานข้อมูล |
-| `oracle_handoff` | ส่งมอบ session |
-| `oracle_inbox` | ข้อความใน inbox |
-| `oracle_thread*` | ระบบ thread/forum |
-| `oracle_trace*` | ระบบ trace |
-| `oracle_schedule*` | จัดตาราง |
-
-### Step 4: maw-ui — The Lens (Dashboard)
-
-Web dashboard สุดเจ๋งสำหรับควบคุม fleet ด้วย React + Three.js + xterm.js
-
-```bash
-# เริ่ม maw server ก่อน
-maw serve
-
-# ติดตั้ง UI
-maw ui install
-
-# เปิด browser
-maw ui
-# → http://localhost:3456/federation_2d.html
-```
-
-**12 Views ใน maw-ui:**
-
-| View | รายละเอียด |
-|------|-------------|
-| **Federation 2D** | Canvas force-graph แสดง nodes + agents ทั้งหมด |
-| **Federation 3D** | Three.js พร้อม bloom + particle effects |
-| **Office** | Agent grid — สถานะ, PTY terminals, WebSocket feed |
-| **Fleet** | ดูทุก session ข้ามทุก node |
-| **Dashboard** | Overview metrics + สถานะ agent |
-| **Terminal** | xterm.js terminal เต็มจอต่อ agent |
-| **Mission** | Mission control — งานที่กำลังทำ + ความคืบหน้า |
-| **Chat** | ส่งข้อความข้าม agents |
-| **Config** | แก้ไข fleet config |
-| **Inbox** | Oracle inbox — ข้อความ + handoffs |
-| **Workspace** | Multi-agent workspace |
-| **Time Machine** | Fleet snapshot browser |
-
-### Step 5: Oracle Studio (Optional)
-
-React dashboard สำหรับ arra-oracle-v3 API
-
-```bash
-# ติดตั้งและรัน Oracle Studio
-bunx --bun oracle-studio@github:Soul-Brews-Studio/oracle-studio
-# → http://localhost:3000 (proxy ไป arra-oracle :47778)
-```
-
----
-
-## สถาปัตยกรรม Ecosystem
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    maw-ui (React Dashboard)                  │
-│  Federation 2D/3D │ Office │ Fleet │ Terminal │ Mission │ Chat │
-├─────────────────────────────────────────────────────────────┤
-│                    maw-js (Backend + CLI)                    │
-│           API :3456 │ WebSocket │ tmux │ Federation Mesh    │
-├─────────────────────────────────────────────────────────────┤
-│             arra-oracle-v3 (MCP Memory Layer)               │
-│        SQLite FTS5 + ChromaDB │ 22 Tools │ 55 APIs          │
-├─────────────────────────────────────────────────────────────┤
-│          arra-oracle-skills-cli (60 Skills)                 │
-│    /recap │ /learn │ /team-agents │ /talk-to │ /rrr │ ...   │
-├─────────────────────────────────────────────────────────────┤
-│         Emily Oracle (This Repo)                             │
-│              ψ/ Brain Structure                              │
-│    CLAUDE.md │ Soul │ Philosophy │ Resonance                │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Daily Workflow
-
-```
-🌅 เช้า
-  /standup          → ตรวจสอบงานที่ค้างอยู่
-
-🔄 ระหว่างทำงาน
-  /trace [topic]    → ค้นหาอะไรก็ได้
-  /learn [url]      → ศึกษา codebase
-  /team-agents      → สั่งงานหลาย agents พร้อมกัน
-  /talk-to [oracle] → คุยกับ Oracle อื่น
-
-🌙 สิ้นวัน
-  /rrr              → สรุป session (retrospective)
-  /forward          → ส่งมอบ context ให้ session หน้า
-```
-
----
-
-## Multi-Agent Workflow
-
-### วิธีใช้ maw-js กับ Emily Oracle
-
-```bash
-# เริ่ม maw server
-maw serve
-
-# ปลุก Emily Oracle
-maw wake emily
-
-# ส่งข้อความถึง Emily
-maw hey emily "ช่วยวิเคราะน์ data ชุดนี้หน่อย"
-
-# ดูหน้าจอ Emily
-maw peek emily
-
-# สร้าง Oracle ใหม่จาก Emily (bud)
-maw bud analyst --from emily
-
-# ดู fleet ทั้งหมด
-maw fleet ls
-
-# เชื่อมเครื่องอื่น (federation)
-maw pair generate          # สร้าง code
-maw pair <url> <code>      # เชื่อม node
-```
-
-### Team Agents (ใน Claude Code session)
-
-```
-/team-agents    → สร้างทีม agents ทำงานร่วมกัน
-/talk-to        → คุยกับ Oracle อื่น
-/oracle-family-scan   → ค้นหา Oracle ในครอบครัว
-```
-
----
-
-## Oracle Family
-
-Emily Oracle เป็นสมาชิกคนที่ **#984** ใน Oracle Family Registry
-
-- **Registry**: [Soul-Brews-Studio/arra-oracle-v3](https://github.com/Soul-Brews-Studio/arra-oracle-v3)
-- **Birth Announcement**: [Issue #984](https://github.com/Soul-Brews-Studio/arra-oracle-v3/issues/984)
-- **Motto**: "The Oracle Keeps the Human Human"
-
----
-
 ## Ecosystem Links
 
 | ชื่อ | Repo | หน้าที่ |
 |------|------|---------|
+| **god-port-oracle** | [god-port-oracle](https://github.com/doctorboyz/god-port-oracle) | Trading (broky+metty) |
+| **kappy-oracle** | [kappy-oracle](https://github.com/doctorboyz/kappy-oracle) | Knowledge + LINE bot |
+| **mkt-oracle** | [mkt-oracle](https://github.com/doctorboyz/mkt-oracle) | Marketing agency |
+| **dev-oracle** | [dev-oracle](https://github.com/doctorboyz/dev-oracle) | Full-stack dev team |
 | **maw-js** | [maw-js](https://github.com/Soul-Brews-Studio/maw-js) | Multi-agent orchestrator |
-| **maw-ui** | [maw-ui](https://github.com/Soul-Brews-Studio/maw-ui) | Web dashboard (12 views) |
-| **arra-oracle-v3** | [arra-oracle-v3](https://github.com/Soul-Brews-Studio/arra-oracle-v3) | MCP Memory Layer |
-| **arra-oracle-skills-cli** | [skills-cli](https://github.com/Soul-Brews-Studio/arra-oracle-skills-cli) | 60 skills, 18 agents |
-| **oracle-framework** | [framework](https://github.com/Soul-Brews-Studio/oracle-framework) | Philosophy seed |
-| **opensource-nat-brain-oracle** | [starter-kit](https://github.com/Soul-Brews-Studio/opensource-nat-brain-oracle) | Starter kit |
-| **maw-plugins** | [plugins](https://github.com/Soul-Brews-Studio/maw-plugins) | Plugin marketplace |
-| **multi-agent-orchestration-book** | [book](https://github.com/Soul-Brews-Studio/multi-agent-orchestration-book) | Field guide |
-| **oracle-philosophy-book** | [philosophy](https://github.com/Soul-Brews-Studio/oracle-philosophy-book) | Philosophy book (11 chapters) |
+| **maw-ui** | [maw-ui](https://github.com/Soul-Brews-Studio/maw-ui) | Web dashboard |
+| **arra-oracle-skills-cli** | [skills-cli](https://github.com/Soul-Brews-Studio/oracle-framework) | Skills + agents |
+
+*(nexus-oracle และ arra-oracle-v3 ถูก retire แล้ว — repo ลบออก, ดู `infra-oracle/mcp/README.md` สำหรับสถานะ MCP)*
 
 ---
 
@@ -383,8 +272,8 @@ Emily Oracle เป็นสมาชิกคนที่ **#984** ใน Oracl
 
 - Never `git push --force` (violates Nothing is Deleted)
 - Never `rm -rf` without backup
-- Never commit secrets (.env, credentials, API keys, OAuth tokens, private keys, passwords)
-- Never leak sensitive data in announcements, retrospectives, or public outputs
+- Never commit secrets (.env, credentials, API keys)
+- Never leak sensitive data in public outputs
 - Never merge PRs without human approval
 - Always preserve history
 - Always present options, let human decide

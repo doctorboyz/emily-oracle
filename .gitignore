@@ -18,3 +18,9 @@ Thumbs.db
 .tmp/
 *.tmp
 *.log
+
+# Synapse vault (local knowledge DB, not committed)
+.synapse/
+
+# Learn: ignore origin symlinks (source lives in ghq)
+ψ/learn/**/origin

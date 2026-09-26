@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zsh \"$CLAUDE_PROJECT_DIR/scripts/inbox-start-hook.sh\" \"$CLAUDE_PROJECT_DIR/ψ/inbox\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/doctorboyz/Code/github.com/doctorboyz/nexus-oracle/scripts/session-summary.sh emily"
+          }
+        ]
+      }
+    ]
+  }
+}

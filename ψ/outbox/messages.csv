@@ -1,0 +1,5 @@
+msg_id,from,to,type,status,sent,accepted_at,completed_at,reply_to,body_file
+MSG-EMILY-20260519-001,emily,infra,task,pending,2026-05-19T06:05:54.073Z,-,-,-,MSG-EMILY-20260519-001.body.md
+MSG-EMILY-20260519-001,emily,infra,task,pending,2026-05-19T14:40:56.781Z,-,-,-,MSG-EMILY-20260519-001.body.md
+MSG-EMILY-20260831-001,emily,hermes,reply,sent,2026-08-31T04:11:00.000Z,-,-,MSG-HERMES-20260831-001,MSG-EMILY-20260831-001.body.md
+MSG-EMILY-20260911-001,emily,hermes,reply,sent,2026-09-11T13:05:00.000Z,-,-,MSG-HERMES-20260911-001,MSG-EMILY-20260911-001.body.md

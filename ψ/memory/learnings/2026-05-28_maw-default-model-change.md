@@ -1,3 +1,9 @@
+---
+superseded_by: 2026-06-28_maw-wake-all-fallback-string.md
+superseded_at: 2026-10-03
+status: superseded
+---
+
 # maw Default Model Change
 
 **Date**: 2026-05-28

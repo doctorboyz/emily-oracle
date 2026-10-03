@@ -1,3 +1,9 @@
+---
+superseded_by: pm-coordination-patterns.md
+superseded_at: 2026-10-03
+status: superseded
+---
+
 # April 2026 Learnings Summary
 
 ## 2026-04-28 — CSV-in-Markdown Goal Tracking Format

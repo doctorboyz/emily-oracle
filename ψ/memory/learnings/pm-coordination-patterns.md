@@ -10,11 +10,12 @@
 - Handoff files in ψ/inbox/handoff/ → session-to-session transfer
 
 ### maw-based (synchronous, ephemeral)
-- `maw hey <oracle> "message"` → sends message to oracle's tmux session
+- `maw hey <target> "<message>"` → sends message to oracle's tmux session
+  - **2026-10-03 update (#759 Phase 2)**: bare names removed — target must be `local:<agent>` (this node) or `<node>:<session>` (cross-node), e.g. `maw hey local:god-port "สถานะ?"`
 - `maw peek <oracle>` → reads oracle's current screen output
-- `maw fleet ls` → lists all active fleet members
+- `maw fleet` → lists all fleet members (no `ls` subcommand — bare `maw fleet` prints the config table)
 - `maw pulse add` → creates GitHub Issue for task tracking
-- `maw art write` → records task completion artifact
+- `maw art` → artifacts manager (records task completion artifacts)
 
 ### File-based (shared project)
 - God Port vault: `/Users/doctorboyz/Code/github.com/doctorboyz/god-port-oracle/ψ/`
@@ -38,7 +39,7 @@
 
 ### PM → God Port (coordination)
 - PM reads god-port vault passively (no message needed)
-- PM sends `maw hey god-port` when active coordination needed
+- PM sends `maw hey local:god-port` when active coordination needed
 - PM writes status reports to ψ/outbox/
 - PM escalates to emily for capability gaps
 
